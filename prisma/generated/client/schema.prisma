@@ -1,0 +1,49 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Booking {
+  id         Int      @id @default(autoincrement())
+  cottageId  Int
+  cottage    Cottage  @relation(fields: [cottageId], references: [id])
+  guestName  String
+  guestEmail String
+  startDate  DateTime
+  endDate    DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model Cottage {
+  id          Int      @id @default(autoincrement())
+  title       String // Название ("Уютный домик у озера")
+  description String? // Подробное описание (может быть null)
+  price       Float // Цена за ночь
+  isBooked    Boolean  @default(false) // Занят/свободен
+  bedrooms    Int      @default(1) // Количество спален
+  maxGuests   Int      @default(2) // Максимум гостей
+  amenities   String[] // Удобства: ["WiFi", "Бассейн", "Кухня"]
+  images      String[] // Ссылки на фотографии
+  location    String // Адрес или координаты ("ул. Лесная, 15")
+  rating      Float?   @default(4.5) // Рейтинг (1-5)
+  rules       String[] // Правила: ["Не курить", "Без животных"]
+
+  // Даты бронирования (если нужно хранить историю)
+  bookings Booking[] // Связь с таблицей бронирований
+
+  // Технические поля
+  createdAt DateTime @default(now()) // Дата создания
+  updatedAt DateTime @updatedAt // Дата обновления
+}

@@ -22,10 +22,11 @@
       }
     ],
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@prisma/client": ["./prisma/generated/client"],
+      "@/lib/*": ["./src/lib/*"],
+      "@/generated/*": ["./prisma/generated/*"]
     },
+
     "moduleResolution": "node"
   },
   "include": [
@@ -38,3 +39,5 @@
     "node_modules"
   ]
 }
+
+
