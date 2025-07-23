@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/nextjs",
+      "config": {
+        "includeFiles": ["prisma/schema.prisma"]
+      }
+    }
+  ],
+  "buildCommand": "npm run vercel-build"
+}
