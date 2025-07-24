@@ -16,13 +16,16 @@ interface Booking {
   guestPhone?: string;
 }
 
+type SortDirection = 'asc' | 'desc';
+type SortableField = keyof Omit<Booking, 'cottageId'>; // Исключаем поле, которое не сортируем
+
 export default function AdminPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [sortConfig, setSortConfig] = useState<{
-    field: keyof Booking;
-    direction: 'asc' | 'desc';
+    field: SortableField;
+    direction: SortDirection;
   }>({ field: 'startDate', direction: 'desc' });
   const router = useRouter();
 
@@ -36,6 +39,7 @@ export default function AdminPage() {
 
     const fetchBookings = async () => {
       try {
+        setIsLoading(true);
         const res = await fetch(
           `/api/bookings?sort=${sortConfig.field}&direction=${sortConfig.direction}`
         );
@@ -48,36 +52,46 @@ export default function AdminPage() {
       }
     };
 
-    checkAuth();
-    fetchBookings();
-  }, [router, sortConfig]);
+    checkAuth().then(fetchBookings);
+  }, [router, sortConfig.field, sortConfig.direction]);
 
-  const handleSort = (field: keyof Booking) => {
+  const handleSort = (field: SortableField) => {
     setSortConfig(prev => ({
       field,
       direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
     }));
   };
 
-const sortedBookings = [...bookings].sort((a: Booking, b: Booking) => {
-  // Добавляем проверку на существование полей
-  const field = sortConfig.field;
-  const aValue = a[field];
-  const bValue = b[field];
+  const sortedBookings = [...bookings].sort((a, b) => {
+    const field = sortConfig.field;
+    const aValue = a[field];
+    const bValue = b[field];
 
-  if (aValue === undefined || bValue === undefined) {
+    // Обработка undefined значений
+    if (aValue === undefined || bValue === undefined) return 0;
+
+    // Специальная обработка для дат
+    const dateFields: (keyof Booking)[] = ['startDate', 'endDate', 'createdAt'];
+    if (dateFields.includes(field)) {
+      const dateA = new Date(aValue).getTime();
+      const dateB = new Date(bValue).getTime();
+      return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
+    }
+
+    // Для строк
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortConfig.direction === 'asc' 
+        ? aValue.localeCompare(bValue) 
+        : bValue.localeCompare(aValue);
+    }
+
+    // Для чисел (id)
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
+    }
+
     return 0;
-  }
-
-  if (aValue < bValue) {
-    return sortConfig.direction === 'asc' ? -1 : 1;
-  }
-  if (aValue > bValue) {
-    return sortConfig.direction === 'asc' ? 1 : -1;
-  }
-  return 0;
-});
-
+  });
 
   const paginatedBookings = sortedBookings.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
@@ -140,7 +154,13 @@ const sortedBookings = [...bookings].sort((a: Booking, b: Booking) => {
                   </button>
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Создано
+                  <button
+                    className="flex items-center"
+                    onClick={() => handleSort('createdAt')}
+                  >
+                    Создано
+                    <ArrowUpDown className="ml-1 h-4 w-4" />
+                  </button>
                 </th>
               </tr>
             </thead>
