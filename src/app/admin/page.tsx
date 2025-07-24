@@ -1,4 +1,4 @@
-// src/app/admin/page.tsx
+// src/app/admin/page.tsx 
 'use client';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -17,7 +17,7 @@ interface Booking {
 }
 
 type SortDirection = 'asc' | 'desc';
-type SortableField = keyof Omit<Booking, 'cottageId'>; // Исключаем поле, которое не сортируем
+type SortableField = keyof Omit<Booking, 'cottageId'>;
 
 export default function AdminPage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -67,10 +67,8 @@ export default function AdminPage() {
     const aValue = a[field];
     const bValue = b[field];
 
-    // Обработка undefined значений
     if (aValue === undefined || bValue === undefined) return 0;
 
-    // Специальная обработка для дат
     const dateFields: (keyof Booking)[] = ['startDate', 'endDate', 'createdAt'];
     if (dateFields.includes(field)) {
       const dateA = new Date(aValue).getTime();
@@ -78,14 +76,12 @@ export default function AdminPage() {
       return sortConfig.direction === 'asc' ? dateA - dateB : dateB - dateA;
     }
 
-    // Для строк
     if (typeof aValue === 'string' && typeof bValue === 'string') {
       return sortConfig.direction === 'asc' 
         ? aValue.localeCompare(bValue) 
         : bValue.localeCompare(aValue);
     }
 
-    // Для чисел (id)
     if (typeof aValue === 'number' && typeof bValue === 'number') {
       return sortConfig.direction === 'asc' ? aValue - bValue : bValue - aValue;
     }
