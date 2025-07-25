@@ -1,9 +1,13 @@
 // src/app/admin/page.tsx 
 'use client';
-import { useEffect, useState } from 'react';
+
+import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+  
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, Calendar, Mail, User } from 'lucide-react';
+
 
 interface Booking {
   id: number;
@@ -20,6 +24,9 @@ type SortDirection = 'asc' | 'desc';
 type SortableField = keyof Omit<Booking, 'cottageId'>;
 
 export default function AdminPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -27,15 +34,16 @@ export default function AdminPage() {
     field: SortableField;
     direction: SortDirection;
   }>({ field: 'startDate', direction: 'desc' });
-  const router = useRouter();
 
   const ITEMS_PER_PAGE = 10;
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const res = await fetch('/api/auth/check');
-      if (!res.ok) router.push('/admin/login');
-    };
+    if (status === 'loading') return;
+
+    if (!session) {
+      router.push('/admin/login');
+      return;
+    }
 
     const fetchBookings = async () => {
       try {
@@ -52,13 +60,13 @@ export default function AdminPage() {
       }
     };
 
-    checkAuth().then(fetchBookings);
-  }, [router, sortConfig.field, sortConfig.direction]);
+    fetchBookings();
+  }, [router, session, status, sortConfig.field, sortConfig.direction]);
 
   const handleSort = (field: SortableField) => {
     setSortConfig(prev => ({
       field,
-      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc'
+      direction: prev.field === field && prev.direction === 'asc' ? 'desc' : 'asc',
     }));
   };
 
@@ -77,8 +85,8 @@ export default function AdminPage() {
     }
 
     if (typeof aValue === 'string' && typeof bValue === 'string') {
-      return sortConfig.direction === 'asc' 
-        ? aValue.localeCompare(bValue) 
+      return sortConfig.direction === 'asc'
+        ? aValue.localeCompare(bValue)
         : bValue.localeCompare(aValue);
     }
 
@@ -96,11 +104,13 @@ export default function AdminPage() {
 
   const totalPages = Math.ceil(bookings.length / ITEMS_PER_PAGE);
 
-  if (isLoading) return (
-    <div className="flex justify-center items-center h-screen">
-      <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
-  );
+  if (isLoading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-4">

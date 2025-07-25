@@ -1,8 +1,15 @@
-// src/lib/utils.ts 
+// src/lib/utils.ts
+import { type ClassValue, clsx } from 'clsx';
+import { twMerge } from 'tailwind-merge';
+
 interface ApiResponse {
   data?: unknown;
   error?: string;
   status: number;
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
 
 export const handleApiResponse = async (response: Response): Promise<ApiResponse> => {

@@ -36,7 +36,7 @@ export default function BookingPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          cottageId: 1,
+          cottageId,
           guestName,
           guestEmail,
           startDate: startDate.toISOString(),

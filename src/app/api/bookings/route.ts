@@ -4,6 +4,29 @@ import { prisma } from '@/lib/prisma';
 
 import { Prisma } from '@prisma/client';
 
+export async function GET(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const sort = url.searchParams.get('sort') || 'startDate';
+    const direction = url.searchParams.get('direction') === 'asc' ? 'asc' : 'desc';
+
+    // Валидируем поле сортировки
+    const sortableFields = ['id', 'guestName', 'startDate', 'endDate', 'createdAt'];
+    const orderByField = sortableFields.includes(sort) ? sort : 'startDate';
+
+    const bookings = await prisma.booking.findMany({
+      orderBy: {
+        [orderByField]: direction,
+      },
+    });
+
+    return NextResponse.json(bookings);
+  } catch (error) {
+    console.error('Failed to fetch bookings:', error);
+    return NextResponse.json({ error: 'Failed to fetch bookings' }, { status: 500 });
+  }
+}
+
 export async function POST(req: Request) {
   try {
     const { cottageId, guestName, guestEmail, startDate, endDate } = await req.json();

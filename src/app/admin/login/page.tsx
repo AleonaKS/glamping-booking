@@ -1,4 +1,6 @@
+// src/app/admin/login/page.tsx
 'use client';
+
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { signIn } from 'next-auth/react';
@@ -11,6 +13,8 @@ export default function LoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
+
     const result = await signIn('credentials', {
       username,
       password,
