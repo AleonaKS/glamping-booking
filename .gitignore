@@ -41,3 +41,14 @@ yarn-error.log*
 next-env.d.ts
 
 /src/generated/prisma
+
+# Неиспользуемые компоненты и скрипты
+src/components/BookingForm.tsx
+src/components/BookingSuccessContent.tsx
+src/components/MapSVG.tsx
+script.ts
+
+# Неиспользуемые изображения
+public/file.svg
+public/globe.svg
+public/window.svg

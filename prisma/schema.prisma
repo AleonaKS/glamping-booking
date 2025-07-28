@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
   output   = "./generated/client"
@@ -15,37 +9,89 @@ datasource db {
 }
 
 model Booking {
-  id          Int      @id @default(autoincrement())
-  cottageId   Int
-  cottage     Cottage  @relation(fields: [cottageId], references: [id])
-  guestName   String
-  guestEmail  String
-  startDate   DateTime
-  endDate     DateTime
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            Int           @id @default(autoincrement())
+  cottageId     Int
+  startDate     DateTime
+  endDate       DateTime
+  createdAt     DateTime      @default(now())
+  guestEmail    String
+  guestName     String
+  updatedAt     DateTime      @updatedAt
+  adults        Int           @default(1)
+  children      Int           @default(0)
+  deletedAt     DateTime?
+  guestPhone    String?
+  paymentId     String?
+  paymentStatus PaymentStatus @default(UNPAID)
+  promoCodeId   Int?
+  source        String?       @default("website")
+  status        BookingStatus @default(PENDING)
+  totalPrice    Float         @default(0.0)
+  cottage       Cottage       @relation(fields: [cottageId], references: [id])
+  promoCode     PromoCode?    @relation(fields: [promoCodeId], references: [id])
 }
-
 
 model Cottage {
-  id          Int       @id @default(autoincrement())
-  title       String    // Название ("Уютный домик у озера")
-  description String?   // Подробное описание (может быть null)
-  price       Float     // Цена за ночь
-  isBooked    Boolean   @default(false) // Занят/свободен
-  bedrooms    Int       @default(1)     // Количество спален
-  maxGuests   Int       @default(2)     // Максимум гостей
-  amenities   String[]  // Удобства: ["WiFi", "Бассейн", "Кухня"]
-  images      String[]  // Ссылки на фотографии
-  location    String    // Адрес или координаты ("ул. Лесная, 15")
-  rating      Float?    @default(4.5)   // Рейтинг (1-5)
-  rules       String[]  // Правила: ["Не курить", "Без животных"]
+  id            Int       @id @default(autoincrement())
+  title         String
+  description   String?
+  price         Float
+  isBooked      Boolean   @default(false)
+  bedrooms      Int       @default(1)
+  maxGuests     Int       @default(2)
+  amenities     String[]
+  images        String[]
+  rules         String[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  address       String?
+  beds          Int       @default(1)
+  coverImage    String    @default("")
+  discountPrice Float?
+  isPublished   Boolean   @default(true)
+  latitude      Float?
+  longitude     Float?
+  slug          String    @unique @default("")
+  bookings      Booking[]
+  reviews       Review[]
 
-  // Даты бронирования (если нужно хранить историю)
-  bookings    Booking[] // Связь с таблицей бронирований
-
-  // Технические поля
-  createdAt   DateTime @default(now()) // Дата создания
-  updatedAt   DateTime @updatedAt      // Дата обновления
+  x           Float?   // координата X
+  y           Float?   // координата Y
 }
 
+model Review {
+  id         Int      @id @default(autoincrement())
+  cottageId  Int
+  userId     Int?
+  userName   String
+  rating     Int      @default(5)
+  comment    String?
+  isApproved Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  cottage    Cottage  @relation(fields: [cottageId], references: [id])
+}
+
+model PromoCode {
+  id         Int       @id @default(autoincrement())
+  code       String    @unique
+  discount   Int       @default(10)
+  validFrom  DateTime?
+  validUntil DateTime?
+  isActive   Boolean   @default(true)
+  bookings   Booking[]
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PAID
+  REFUNDED
+  FAILED
+  PARTIALLY_REFUNDED
+}

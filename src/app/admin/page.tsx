@@ -1,13 +1,25 @@
+// import { useSession } from 'next-auth/react';
+// import { useRouter } from 'next/navigation';
+// import { useEffect, useState } from 'react';
+  
+// import { Button } from '@/components/ui/button';
+// import { ArrowUpDown, Calendar, Mail, User } from 'lucide-react';
+// import { BookingStatus } from '@prisma/client';
+
+// // В начале компонента AdminPage
+// const validStatuses = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
 // src/app/admin/page.tsx 
 'use client';
 
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-  
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, Calendar, Mail, User } from 'lucide-react';
 
+// Определяем тип статуса
+type BookingStatus = 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+const validStatuses: BookingStatus[] = ['PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED'];
 
 interface Booking {
   id: number;
@@ -18,6 +30,7 @@ interface Booking {
   endDate: string;
   createdAt: string;
   guestPhone?: string;
+  status?: BookingStatus; // Добавляем поле статуса
 }
 
 type SortDirection = 'asc' | 'desc';
@@ -37,31 +50,37 @@ export default function AdminPage() {
 
   const ITEMS_PER_PAGE = 10;
 
-  useEffect(() => {
-    if (status === 'loading') return;
+useEffect(() => {
+  if (status === 'loading') return;
 
-    if (!session) {
-      router.push('/admin/login');
-      return;
+  if (!session) {
+    router.push('/admin/login');
+    return;
+  }
+
+  const fetchBookings = async () => {
+    try {
+      setIsLoading(true);
+      const res = await fetch(`/api/bookings?page=${currentPage}&limit=${ITEMS_PER_PAGE}`);
+      
+      if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+      
+      const data = await res.json();
+      setBookings(data.data || []);
+    } catch (error) {
+      console.error('Error fetching bookings:', error);
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    const fetchBookings = async () => {
-      try {
-        setIsLoading(true);
-        const res = await fetch(
-          `/api/bookings?sort=${sortConfig.field}&direction=${sortConfig.direction}`
-        );
-        const data = await res.json();
-        setBookings(data);
-      } catch (error) {
-        console.error('Error fetching bookings:', error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  fetchBookings();
 
-    fetchBookings();
-  }, [router, session, status, sortConfig.field, sortConfig.direction]);
+  const interval = setInterval(fetchBookings, 10000); // обновлять каждые 10 секунд
+
+  return () => clearInterval(interval);
+}, [router, session, status, currentPage]);
+
 
   const handleSort = (field: SortableField) => {
     setSortConfig(prev => ({

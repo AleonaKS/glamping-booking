@@ -123,12 +123,22 @@ exports.Prisma.TransactionIsolationLevel = makeStrictEnum({
 exports.Prisma.BookingScalarFieldEnum = {
   id: 'id',
   cottageId: 'cottageId',
-  guestName: 'guestName',
-  guestEmail: 'guestEmail',
   startDate: 'startDate',
   endDate: 'endDate',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  guestEmail: 'guestEmail',
+  guestName: 'guestName',
+  updatedAt: 'updatedAt',
+  adults: 'adults',
+  children: 'children',
+  deletedAt: 'deletedAt',
+  guestPhone: 'guestPhone',
+  paymentId: 'paymentId',
+  paymentStatus: 'paymentStatus',
+  promoCodeId: 'promoCodeId',
+  source: 'source',
+  status: 'status',
+  totalPrice: 'totalPrice'
 };
 
 exports.Prisma.CottageScalarFieldEnum = {
@@ -141,11 +151,39 @@ exports.Prisma.CottageScalarFieldEnum = {
   maxGuests: 'maxGuests',
   amenities: 'amenities',
   images: 'images',
-  location: 'location',
-  rating: 'rating',
   rules: 'rules',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  address: 'address',
+  beds: 'beds',
+  coverImage: 'coverImage',
+  discountPrice: 'discountPrice',
+  isPublished: 'isPublished',
+  latitude: 'latitude',
+  longitude: 'longitude',
+  slug: 'slug',
+  x: 'x',
+  y: 'y'
+};
+
+exports.Prisma.ReviewScalarFieldEnum = {
+  id: 'id',
+  cottageId: 'cottageId',
+  userId: 'userId',
+  userName: 'userName',
+  rating: 'rating',
+  comment: 'comment',
+  isApproved: 'isApproved',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.PromoCodeScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  discount: 'discount',
+  validFrom: 'validFrom',
+  validUntil: 'validUntil',
+  isActive: 'isActive'
 };
 
 exports.Prisma.SortOrder = {
@@ -162,11 +200,26 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  UNPAID: 'UNPAID',
+  PAID: 'PAID',
+  REFUNDED: 'REFUNDED',
+  FAILED: 'FAILED',
+  PARTIALLY_REFUNDED: 'PARTIALLY_REFUNDED'
+};
 
+exports.BookingStatus = exports.$Enums.BookingStatus = {
+  PENDING: 'PENDING',
+  CONFIRMED: 'CONFIRMED',
+  CANCELLED: 'CANCELLED',
+  COMPLETED: 'COMPLETED'
+};
 
 exports.Prisma.ModelName = {
   Booking: 'Booking',
-  Cottage: 'Cottage'
+  Cottage: 'Cottage',
+  Review: 'Review',
+  PromoCode: 'PromoCode'
 };
 
 /**
