@@ -237,6 +237,8 @@ try {
     }
 
     toast.success('Бронирование успешно создано!');
+    if (onSuccess) onSuccess();
+
 
     // Переход на страницу успеха с передачей параметров в query
     router.push(
