@@ -1,8 +1,8 @@
-// src/app/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Navbar from '@/components/Navbar';
 
 interface Cottage {
   id: string;
@@ -14,74 +14,122 @@ interface Cottage {
   coords: { x: number; y: number };
 }
 
-
 export default function HomePage() {
   const [houses, setHouses] = useState<Cottage[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoveredHouse, setHoveredHouse] = useState<string | null>(null);
   const [selectedHouse, setSelectedHouse] = useState<string | null>(null);
 
-useEffect(() => {
-  fetch('/api/cottages')
-    .then(res => res.json())
-    .then(data => {
-      console.log('Fetched cottages:', data);
-      if (Array.isArray(data)) {
-        setHouses(data);
-      } else {
-        setHouses([]);
-      }
-      setLoading(false);
-    })
-    .catch(() => setLoading(false));
-}, []);
+  useEffect(() => {
+    fetch('/api/cottages')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setHouses(data);
+        } else {
+          setHouses([]);
+        }
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, []);
 
-
-
-  if (loading) return <p>Загрузка коттеджей...</p>;
+  if (loading) return <p style={{ paddingTop: 60, textAlign: 'center' }}>Загрузка коттеджей...</p>;
 
   return (
-    <div style={{ position: 'relative', width: '100%', maxWidth: 800, margin: '0 auto' }}>
-      <svg
-        viewBox="0 0 100 100"
-        style={{ width: '100%', height: 'auto', border: '1px solid #ccc' }}
-      >
-        <image
-          href="/image-asset.jpeg"
-          x="0"
-          y="0"
-          width="100"
-          height="100"
-          preserveAspectRatio="xMidYMid meet"
-        />
+    <>
+      <Navbar />
 
-        {houses.map((house) => (
-          <circle
-            key={house.id}
-            cx={house.coords.x}
-            cy={house.coords.y}
-            r={3}
-            fill={hoveredHouse === house.id || selectedHouse === house.id ? 'orange' : 'brown'}
-            style={{ cursor: 'pointer' }}
-            onMouseEnter={() => setHoveredHouse(house.id)}
-            onMouseLeave={() => setHoveredHouse(null)}
-            onClick={() => setSelectedHouse(house.id)}
-          />
-        ))}
-      </svg>
+      {/* Контейнер с отступом сверху под фиксированный Navbar */}
+      <main style={{ paddingTop: 60 }}>
+        {/* Карта с домиками */}
+        <section
+          id="map"
+          style={{
+            position: 'relative',
+            width: '90%',
+            // maxWidth: 800,
+            // height: 400,
+            margin: '20px auto',
+            border: '1px solid #ccc',
+            borderRadius: 8,
+            overflow: 'hidden',
+          }}
+        >
+          <svg
+            viewBox="0 0 100 100"
+            style={{ width: '100%', height: '100%', display: 'block' }}
+          >
+            <image
+              href="/image-asset.jpeg"
+              x="0"
+              y="0"
+              width="100"
+              height="100"
+              preserveAspectRatio="xMidYMid meet"
+            />
 
-      {hoveredHouse && !selectedHouse && (
-        <HouseTooltip house={houses.find((h) => h.id === hoveredHouse)!} />
-      )}
+            {houses.map((house) => (
+              <circle
+                key={house.id}
+                cx={house.coords.x}
+                cy={house.coords.y}
+                r={3}
+                fill={hoveredHouse === house.id || selectedHouse === house.id ? 'orange' : 'brown'}
+                style={{ cursor: 'pointer' }}
+                onMouseEnter={() => setHoveredHouse(house.id)}
+                onMouseLeave={() => setHoveredHouse(null)}
+                onClick={() => setSelectedHouse(house.id)}
+              />
+            ))}
+          </svg>
 
-      {selectedHouse && (
-        <HouseTooltip
-          house={houses.find((h) => h.id === selectedHouse)!}
-          onClose={() => setSelectedHouse(null)}
-          showDetailsLink
-        />
-      )}
-    </div>
+          {hoveredHouse && !selectedHouse && (
+            <HouseTooltip house={houses.find((h) => h.id === hoveredHouse)!} />
+          )}
+
+          {selectedHouse && (
+            <HouseTooltip
+              house={houses.find((h) => h.id === selectedHouse)!}
+              onClose={() => setSelectedHouse(null)}
+              showDetailsLink
+            />
+          )}
+        </section>
+
+        {/* Информационные секции */}
+        <section id="houses" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
+          <h2>Домики</h2>
+          {houses.map(house => (
+            <div key={house.id} style={{ marginBottom: 20 }}>
+              <h3>{house.title}</h3>
+              <img src={house.image} alt={house.title} style={{ width: '100%', borderRadius: 8, maxWidth: 400 }} />
+              <p>{house.description}</p>
+              <p>Цена: {house.price} ₽/ночь</p>
+              {house.maxPeople && <p>Макс. гостей: {house.maxPeople}</p>}
+              <Link href={`/cottages/${house.id}`} style={{ color: 'blue', textDecoration: 'underline' }}>
+                Подробнее →
+              </Link>
+            </div>
+          ))}
+        </section>
+
+        <section id="about" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
+          <h2>О нас</h2>
+          <p>Здесь информация о компании...</p>
+        </section>
+
+        <section id="services" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
+          <h2>Услуги</h2>
+          <p>Описание услуг...</p>
+        </section>
+
+        <section id="contacts" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
+          <h2>Контакты</h2>
+          <p>Телефон, email, адрес...</p>
+        </section>
+      </main>
+    </>
   );
 }
 
@@ -105,23 +153,24 @@ function HouseTooltip({
         border: '1px solid #ccc',
         borderRadius: 8,
         padding: 10,
-        width: 200,
+        width: 220,
         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         zIndex: 10,
       }}
     >
-      <img src={house.image} alt={house.title} style={{ width: '100%', borderRadius: 6 }} />
-      <h4>{house.title}</h4>
-      <p>Цена: {house.price} ₽/ночь</p>
-      {house.maxPeople && <p>Макс. гостей: {house.maxPeople}</p>}
+      <img src={house.image} alt={house.title} style={{ width: '100%', borderRadius: 6, marginBottom: 8 }} />
+      <h4 style={{ margin: '0 0 8px' }}>{house.title}</h4>
+      <p style={{ margin: '0 0 4px' }}>Цена: {house.price} ₽/ночь</p>
+      {house.maxPeople && <p style={{ margin: '0 0 8px' }}>Макс. гостей: {house.maxPeople}</p>}
       {showDetailsLink && (
-        <>
-          <Link href={`/cottages/${house.id}`} style={{ color: 'blue', textDecoration: 'underline' }}>Подробнее → 
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Link href={`/cottages/${house.id}`} style={{ color: 'blue', textDecoration: 'underline' }}>
+            Подробнее →
           </Link>
-          <button onClick={onClose} style={{ marginLeft: 10 }}>
+          <button onClick={onClose} style={{ marginLeft: 10, cursor: 'pointer' }}>
             Закрыть
           </button>
-        </>
+        </div>
       )}
     </div>
   );
