@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Navbar from '@/components/Navbar';
+import FAQAccordion from '../components/FAQAccordion';
+import ContactsSection from '../components/ContactsSection';
+
+ 
+
 
 interface Cottage {
   id: string;
@@ -19,6 +23,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [hoveredHouse, setHoveredHouse] = useState<string | null>(null);
   const [selectedHouse, setSelectedHouse] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetch('/api/cottages')
@@ -34,23 +39,121 @@ export default function HomePage() {
       .catch(() => setLoading(false));
   }, []);
 
+  const navItems = [
+    { id: 'houses', label: 'Домики' },
+    { id: 'about', label: 'О нас' },
+    { id: 'services', label: 'Услуги' },
+    { id: 'comfort', label: 'Комфорт и природа' },
+    { id: 'faq', label: 'Часто задаваемые вопросы' },
+    { id: 'contacts', label: 'Контакты' },
+  ];
+
   if (loading) return <p style={{ paddingTop: 60, textAlign: 'center' }}>Загрузка коттеджей...</p>;
 
   return (
     <>
-      <Navbar />
+      {/* Кнопка открытия боковой панели */}
+      {!sidebarOpen && (
+        <button
+          onClick={() => setSidebarOpen(true)}
+          aria-label="Открыть меню"
+          style={{
+            position: 'fixed',
+            top: 20,
+            left: 20,
+            zIndex: 1000,
+            background: '#333',
+            color: '#fff',
+            border: 'none',
+            borderRadius: 4,
+            width: 40,
+            height: 40,
+            cursor: 'pointer',
+            fontSize: 24,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          ☰
+        </button>
+      )}
 
-      {/* Контейнер с отступом сверху под фиксированный Navbar */}
-      <main style={{ paddingTop: 60 }}>
+      {/* Боковая панель */}
+      <nav
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: sidebarOpen ? 0 : '-250px',
+          width: 250,
+          height: '100vh',
+          background: '#222',
+          color: '#fff',
+          paddingTop: 60,
+          paddingLeft: 20,
+          paddingRight: 20,
+          boxSizing: 'border-box',
+          transition: 'left 0.3s ease',
+          zIndex: 1100,
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+        aria-label="Боковая навигация"
+      >
+        <button
+          onClick={() => setSidebarOpen(false)}
+          aria-label="Закрыть меню"
+          style={{
+            position: 'absolute',
+            top: 10,
+            right: 10,
+            background: 'transparent',
+            border: 'none',
+            color: '#fff',
+            fontSize: 24,
+            cursor: 'pointer',
+          }}
+        >
+          ×
+        </button>
+
+        {navItems.map(({ id, label }) => (
+          <Link
+            key={id}
+            href={`#${id}`}
+            onClick={() => setSidebarOpen(false)}
+            style={{
+              color: '#fff',
+              textDecoration: 'none',
+              padding: '10px 0',
+              fontSize: 18,
+              borderBottom: '1px solid #444',
+              cursor: 'pointer',
+            }}
+          >
+            {label}
+          </Link>
+        ))}
+      </nav>
+
+      {/* Основной контент */}
+      <main
+        style={{
+          paddingTop: 60,
+          paddingLeft: sidebarOpen ? 270 : 20,
+          maxWidth: 800,
+          margin: '20px auto',
+          transition: 'padding-left 0.3s ease',
+        }}
+      >
         {/* Карта с домиками */}
         <section
           id="map"
           style={{
             position: 'relative',
-            width: '90%',
-            // maxWidth: 800,
-            // height: 400,
-            margin: '20px auto',
+            width: '100%',
+            height: 400,
+            marginBottom: 20,
             border: '1px solid #ccc',
             borderRadius: 8,
             overflow: 'hidden',
@@ -97,7 +200,7 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* Информационные секции */}
+        {/* Секция Домики */}
         <section id="houses" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
           <h2>Домики</h2>
           {houses.map(house => (
@@ -114,20 +217,63 @@ export default function HomePage() {
           ))}
         </section>
 
-        <section id="about" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
-          <h2>О нас</h2>
-          <p>Здесь информация о компании...</p>
-        </section>
 
-        <section id="services" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
-          <h2>Услуги</h2>
-          <p>Описание услуг...</p>
-        </section>
 
+
+
+        {/* Секция Контакты */}
         <section id="contacts" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
-          <h2>Контакты</h2>
-          <p>Телефон, email, адрес...</p>
+          <div>      
+            <ContactsSection />
+          </div>
         </section>
+
+        {/* Часто задаваемые вопросы */}
+          <section id="faq" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
+            <h2>Часто задаваемые вопросы</h2>
+            <FAQAccordion />
+          </section>
+
+
+
+        {/* Ваш дом вдали от дома */}
+        <section id="comfort" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
+          <h2>Ваш дом вдали от дома</h2>
+          <p>Насладитесь комфортом в наших стильных коттеджах, оборудованных всем необходимым для вашего идеального отдыха. Ощутите спокойствие и умиротворение, окруженные природой. Идеальное место для перезагрузки.</p>
+          <p>Наши домики предлагают уют, комфорт и уединение. Наслаждайтесь природой вдали от городской суеты. Идеальное место для семейного отдыха и романтических выходных. Создайте незабываемые воспоминания.</p>
+        </section>
+
+        {/* Добро пожаловать */}
+        {/* <section id="welcome" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
+          <h2>Добро пожаловать</h2>
+          <p>Окунитесь в атмосферу спокойствия и умиротворения. Наши коттеджи предлагают идеальное сочетание домашнего уюта и близости к природе.</p>
+          <ul>
+            <li>Комфорт</li>
+            <li>Природа</li>
+            <li>Вкус</li>
+            <li>Приключения</li>
+            <li>Релакс</li>
+          </ul>
+          <p>Исследуйте окрестности, наслаждайтесь свежим воздухом и создавайте незабываемые воспоминания. Мы позаботились о каждой детали для вашего комфорта.</p>
+          <p>Откройте для себя уникальный опыт загородного отдыха. Мы предлагаем комфортабельные коттеджи и незабываемые впечатления.</p>
+        </section>
+
+        {/* Живописные виды и свежий воздух */}
+        {/* <section id="nature" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
+          <h2>Живописные виды и свежий воздух</h2>
+          <p>Наслаждайтесь природой в комфортабельных условиях. Наши коттеджи оборудованы всем необходимым для вашего отдыха.</p>
+          <p>Проведите время с близкими в живописном месте. Идеально для семейного отдыха и романтических выходных.</p>
+          <p>Исследуйте окрестности, наслаждайтесь свежим воздухом и тишиной. Отличная возможность отдохнуть от городской суеты.</p>
+          <p>Погрузитесь в атмосферу спокойствия и гармонии с природой. Наши коттеджи предлагают идеальное место для отдыха и восстановления сил.</p>
+          <ul>
+            <li>Комфорт</li>
+            <li>Природа</li>
+            <li>Уединение</li>
+            <li>Приключения</li>
+            <li>Отдых</li>
+            <li>Впечатления</li>
+          </ul>
+        </section> */} 
       </main>
     </>
   );
@@ -175,6 +321,8 @@ function HouseTooltip({
     </div>
   );
 }
+
+
 
 
 
