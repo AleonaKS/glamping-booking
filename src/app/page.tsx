@@ -40,15 +40,13 @@ export default function HomePage() {
   }, []);
 
   const navItems = [
-    { id: 'houses', label: 'Домики' },
-    { id: 'about', label: 'О нас' },
-    { id: 'services', label: 'Услуги' },
-    { id: 'comfort', label: 'Комфорт и природа' },
+    { id: 'houses', label: 'Домики' }, 
+    // { id: 'comfort', label: 'Комфорт и природа' },
     { id: 'faq', label: 'Часто задаваемые вопросы' },
     { id: 'contacts', label: 'Контакты' },
   ];
 
-  if (loading) return <p style={{ paddingTop: 60, textAlign: 'center' }}>Загрузка коттеджей...</p>;
+  if (loading) return <p style={{ paddingTop: 60, textAlign: 'center' }}></p>;
 
   return (
     <>
