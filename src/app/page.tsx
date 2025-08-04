@@ -232,37 +232,32 @@ export default function HomePage() {
               preserveAspectRatio="xMidYMid meet"
             />
 
-            {houses.map((house) => (
-              <circle
-                key={house.id}
-                cx={house.coords.x}
-                cy={house.coords.y}
-                r={3}
-                fill={
-                  hoveredHouse === house.id || selectedHouse === house.id
-                    ? 'orange'
-                    : 'brown'
-                }
-                style={{ cursor: 'pointer' }}
-                onMouseEnter={() => setHoveredHouse(house.id)}
-                onMouseLeave={() => setHoveredHouse(null)}
-                onClick={() => setSelectedHouse(house.id)}
-              />
-            ))}
+            {houses.map(house => (
+      <circle
+        key={house.id}
+        cx={house.coords.x}
+        cy={house.coords.y}
+        r={3}
+        fill={
+          hoveredHouse === house.id || selectedHouse === house.id
+            ? 'orange'
+            : 'brown'
+        }
+        style={{ cursor: 'pointer' }}
+        onClick={() => setSelectedHouse(house.id)}
+        onTouchStart={() => setSelectedHouse(house.id)} // добавлено
+      />
+    ))}
           </svg>
 
-          {hoveredHouse && !selectedHouse && (
-            <HouseTooltip house={houses.find((h) => h.id === hoveredHouse)!} />
-          )}
-
-          {selectedHouse && (
-            <HouseTooltip
-              house={houses.find((h) => h.id === selectedHouse)!}
-              onClose={() => setSelectedHouse(null)}
-              showDetailsLink
-            />
-          )}
-        </section>
+  {selectedHouse && (
+    <HouseTooltip
+      house={houses.find(h => h.id === selectedHouse)!}
+      onClose={() => setSelectedHouse(null)}
+      showDetailsLink
+    />
+  )}
+</section>
 
         {/* Секции FAQ, Контакты и т.д. */}
         <section
@@ -324,6 +319,7 @@ function HouseTooltip({
         width: 220,
         boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
         zIndex: 10,
+        touchAction: 'manipulation',
       }}
     >
       <img
