@@ -368,10 +368,10 @@ export default function HomePage() {
 
     {/* <HeroSection /> */}
     <AdvantagesSection />
-    <AtmosphereSection />
+    {/* <AtmosphereSection /> */}
 
 
-        <section
+        {/* <section
           id="comfort"
           style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}
         >
@@ -386,7 +386,7 @@ export default function HomePage() {
             природой вдали от городской суеты. Идеальное место для семейного
             отдыха и романтических выходных. Создайте незабываемые воспоминания.
           </p>
-        </section>
+        </section> */}
       </main>
     </DesignComponent>
   );
