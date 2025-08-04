@@ -154,7 +154,7 @@ const TextHeight = isMobile ? 180 : 90; // высота svg в пикселях
               x="20"
               y="0"
               fontSize={fontSizePx}
-              fontWeight="bold"
+              fontWeight="regular"
               fill="black"
               style={{ userSelect: 'none' }}
             >
