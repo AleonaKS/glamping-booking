@@ -366,7 +366,7 @@ export default function HomePage() {
         </section>
 
 
-    <HeroSection />
+    {/* <HeroSection /> */}
     <AdvantagesSection />
     <AtmosphereSection />
 
