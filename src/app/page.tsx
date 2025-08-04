@@ -1,12 +1,11 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import FAQAccordion from '../components/FAQAccordion';
 import ContactsSection from '../components/ContactsSection';
-
- 
-
+import Design1 from '@/components/design_1'; 
+import Design2 from '@/components/design_2';
+import Design3 from '@/components/design_3';
 
 interface Cottage {
   id: string;
@@ -18,17 +17,29 @@ interface Cottage {
   coords: { x: number; y: number };
 }
 
+type DesignVariant = 'design1' | 'design2' | 'design3';
+
+const designStyles: Record<
+  DesignVariant,
+  { background: string; color: string; accent: string }
+> = {
+  design1: { background: '#ffffff', color: '#333333', accent: '#B1C399' },
+  design2: { background: '#f5f5f5', color: '#222222', accent: '#E8D5B5' },
+  design3: { background: '#f0f7f4', color: '#1a1a1a', accent: '#A0C1B9' },
+};
+
 export default function HomePage() {
   const [houses, setHouses] = useState<Cottage[]>([]);
   const [loading, setLoading] = useState(true);
   const [hoveredHouse, setHoveredHouse] = useState<string | null>(null);
   const [selectedHouse, setSelectedHouse] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [design, setDesign] = useState<DesignVariant>('design1');
 
   useEffect(() => {
     fetch('/api/cottages')
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         if (Array.isArray(data)) {
           setHouses(data);
         } else {
@@ -40,16 +51,67 @@ export default function HomePage() {
   }, []);
 
   const navItems = [
-    { id: 'houses', label: 'Домики' }, 
-    // { id: 'comfort', label: 'Комфорт и природа' },
+    { id: 'Карта', label: 'Карта' },
     { id: 'faq', label: 'Часто задаваемые вопросы' },
     { id: 'contacts', label: 'Контакты' },
   ];
 
-  if (loading) return <p style={{ paddingTop: 60, textAlign: 'center' }}></p>;
+  if (loading)
+    return <p style={{ paddingTop: 60, textAlign: 'center' }}>Загрузка...</p>;
+
+  // Выбираем компонент дизайна по состоянию
+  const DesignComponent = {
+    design1: Design1,
+    design2: Design2,
+    design3: Design3,
+  }[design];
 
   return (
-    <>
+    
+    <DesignComponent
+      sidebarOpen={sidebarOpen}
+      setSidebarOpen={setSidebarOpen}
+      hoveredHouse={hoveredHouse}
+      setHoveredHouse={setHoveredHouse}
+      selectedHouse={selectedHouse}
+      setSelectedHouse={setSelectedHouse}
+      navItems={navItems}
+      designStyles={designStyles[design]}
+    >
+      
+      {/* Переключатель дизайна сверху по центру */}
+      <div
+        style={{
+          position: 'fixed',
+          top: 10,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1200,
+          display: 'flex',
+          gap: 10,
+        }}
+      >
+        {(['design1', 'design2', 'design3'] as DesignVariant[]).map((d) => (
+          <button
+            key={d}
+            onClick={() => setDesign(d)}
+            style={{
+              padding: '8px 16px',
+              borderRadius: 6,
+              border: 'none',
+              cursor: 'pointer',
+              fontWeight: design === d ? 'bold' : 'normal',
+              backgroundColor: design === d ? designStyles[d].accent : '#ccc',
+              color: design === d ? '#fff' : '#333',
+              transition: 'background-color 0.3s ease',
+            }}
+            aria-pressed={design === d}
+          >
+            {d.toUpperCase()}
+          </button>
+        ))}
+      </div>
+
       {/* Кнопка открытия боковой панели */}
       {!sidebarOpen && (
         <button
@@ -176,7 +238,11 @@ export default function HomePage() {
                 cx={house.coords.x}
                 cy={house.coords.y}
                 r={3}
-                fill={hoveredHouse === house.id || selectedHouse === house.id ? 'orange' : 'brown'}
+                fill={
+                  hoveredHouse === house.id || selectedHouse === house.id
+                    ? 'orange'
+                    : 'brown'
+                }
                 style={{ cursor: 'pointer' }}
                 onMouseEnter={() => setHoveredHouse(house.id)}
                 onMouseLeave={() => setHoveredHouse(null)}
@@ -198,82 +264,40 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* Секция Домики */}
-        <section id="houses" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
-          <h2>Домики</h2>
-          {houses.map(house => (
-            <div key={house.id} style={{ marginBottom: 20 }}>
-              <h3>{house.title}</h3>
-              <img src={house.image} alt={house.title} style={{ width: '100%', borderRadius: 8, maxWidth: 400 }} />
-              <p>{house.description}</p>
-              <p>Цена: {house.price} ₽/ночь</p>
-              {house.maxPeople && <p>Макс. гостей: {house.maxPeople}</p>}
-              <Link href={`/cottages/${house.id}`} style={{ color: 'blue', textDecoration: 'underline' }}>
-                Подробнее →
-              </Link>
-            </div>
-          ))}
+        {/* Секции FAQ, Контакты и т.д. */}
+        <section
+          id="contacts"
+          style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}
+        >
+          <ContactsSection />
         </section>
 
-
-
-
-
-        {/* Секция Контакты */}
-        <section id="contacts" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
-          <div>      
-            <ContactsSection />
-          </div>
+        <section
+          id="faq"
+          style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}
+        >
+          <h2>Часто задаваемые вопросы</h2>
+          <FAQAccordion />
         </section>
 
-        {/* Часто задаваемые вопросы */}
-          <section id="faq" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
-            <h2>Часто задаваемые вопросы</h2>
-            <FAQAccordion />
-          </section>
-
-
-
-        {/* Ваш дом вдали от дома */}
-        <section id="comfort" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
+        <section
+          id="comfort"
+          style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}
+        >
           <h2>Ваш дом вдали от дома</h2>
-          <p>Насладитесь комфортом в наших стильных коттеджах, оборудованных всем необходимым для вашего идеального отдыха. Ощутите спокойствие и умиротворение, окруженные природой. Идеальное место для перезагрузки.</p>
-          <p>Наши домики предлагают уют, комфорт и уединение. Наслаждайтесь природой вдали от городской суеты. Идеальное место для семейного отдыха и романтических выходных. Создайте незабываемые воспоминания.</p>
+          <p>
+            Насладитесь комфортом в наших стильных коттеджах, оборудованных всем
+            необходимым для вашего идеального отдыха. Ощутите спокойствие и
+            умиротворение, окруженные природой. Идеальное место для перезагрузки.
+          </p>
+          <p>
+            Наши домики предлагают уют, комфорт и уединение. Наслаждайтесь
+            природой вдали от городской суеты. Идеальное место для семейного
+            отдыха и романтических выходных. Создайте незабываемые воспоминания.
+          </p>
         </section>
-
-        {/* Добро пожаловать */}
-        {/* <section id="welcome" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
-          <h2>Добро пожаловать</h2>
-          <p>Окунитесь в атмосферу спокойствия и умиротворения. Наши коттеджи предлагают идеальное сочетание домашнего уюта и близости к природе.</p>
-          <ul>
-            <li>Комфорт</li>
-            <li>Природа</li>
-            <li>Вкус</li>
-            <li>Приключения</li>
-            <li>Релакс</li>
-          </ul>
-          <p>Исследуйте окрестности, наслаждайтесь свежим воздухом и создавайте незабываемые воспоминания. Мы позаботились о каждой детали для вашего комфорта.</p>
-          <p>Откройте для себя уникальный опыт загородного отдыха. Мы предлагаем комфортабельные коттеджи и незабываемые впечатления.</p>
-        </section>
-
-        {/* Живописные виды и свежий воздух */}
-        {/* <section id="nature" style={{ padding: '40px 20px', maxWidth: 800, margin: '0 auto' }}>
-          <h2>Живописные виды и свежий воздух</h2>
-          <p>Наслаждайтесь природой в комфортабельных условиях. Наши коттеджи оборудованы всем необходимым для вашего отдыха.</p>
-          <p>Проведите время с близкими в живописном месте. Идеально для семейного отдыха и романтических выходных.</p>
-          <p>Исследуйте окрестности, наслаждайтесь свежим воздухом и тишиной. Отличная возможность отдохнуть от городской суеты.</p>
-          <p>Погрузитесь в атмосферу спокойствия и гармонии с природой. Наши коттеджи предлагают идеальное место для отдыха и восстановления сил.</p>
-          <ul>
-            <li>Комфорт</li>
-            <li>Природа</li>
-            <li>Уединение</li>
-            <li>Приключения</li>
-            <li>Отдых</li>
-            <li>Впечатления</li>
-          </ul>
-        </section> */} 
       </main>
-    </>
+    </DesignComponent>
   );
 }
 
@@ -302,12 +326,20 @@ function HouseTooltip({
         zIndex: 10,
       }}
     >
-      <img src={house.image} alt={house.title} style={{ width: '100%', borderRadius: 6, marginBottom: 8 }} />
+      <img
+        src={house.image}
+        alt={house.title}
+        style={{ width: '100%', borderRadius: 6, marginBottom: 8 }}
+      />
       <h4 style={{ margin: '0 0 8px' }}>{house.title}</h4>
       <p style={{ margin: '0 0 4px' }}>Цена: {house.price} ₽/ночь</p>
-      {house.maxPeople && <p style={{ margin: '0 0 8px' }}>Макс. гостей: {house.maxPeople}</p>}
+      {house.maxPeople && (
+        <p style={{ margin: '0 0 8px' }}>Макс. гостей: {house.maxPeople}</p>
+      )}
       {showDetailsLink && (
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div
+          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+        >
           <Link href={`/cottages/${house.id}`} style={{ color: 'blue', textDecoration: 'underline' }}>
             Подробнее →
           </Link>
@@ -319,7 +351,6 @@ function HouseTooltip({
     </div>
   );
 }
-
 
 
 

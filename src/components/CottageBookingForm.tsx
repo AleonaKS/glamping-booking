@@ -109,8 +109,8 @@ export default function CottageBookingForm({ cottageId, onSuccess }: CottageBook
 
   const cottage = cottages.find(c => c.id === cottageId);
 
-  if (loadingCottages) return <div>Загрузка коттеджей...</div>;
-  if (!cottage) return <div>Коттедж не найден</div>;
+  if (loadingCottages) return <div> </div>;
+  if (!cottage) return <div>Домик не найден</div>;
 
   function isDateBusy(date: Date): boolean {
     return busyIntervals.some(({ startDate, endDate }) => {
@@ -264,7 +264,7 @@ try {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Бронирование коттеджа {cottage.title}</h1>
+      <h1 className={styles.title}>Бронирование домика {cottage.title}</h1>
 
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.inputGroup}>

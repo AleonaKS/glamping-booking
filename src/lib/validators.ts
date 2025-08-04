@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const bookingSchema = z.object({
-  cottageId: z.number().min(1, 'Выберите коттедж'),
+  cottageId: z.number().min(1, 'Выберите домик'),
   guestName: z.string().min(2, 'Минимум 2 символа').max(100),
   guestEmail: z.string().email('Некорректный email'),
   guestPhone: z.string().min(11, 'Некорректный телефон').max(15),

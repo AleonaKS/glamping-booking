@@ -65,7 +65,7 @@ export default function BookingSuccessContent({ booking, onClose }: BookingSucce
         </div>
 
         <div className={styles.detailItem}>
-          <span className={styles.detailLabel}>Коттедж:</span>
+          <span className={styles.detailLabel}>Домик:</span>
           <div>
             <span className={styles.detailValue}>{booking.cottageTitle}</span>
             {booking.cottageDescription && (
