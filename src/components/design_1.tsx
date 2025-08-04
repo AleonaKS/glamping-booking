@@ -126,7 +126,7 @@ const TextHeight = isMobile ? 180 : 90; // высота svg в пикселях
       display: 'block',           // убрать лишние отступы снизу у img
     }}
     draggable={false}
-    loading="lazy"
+    // loading="lazy"
   />
 
   {/* Бежевый блок с текстом и заливкой */}
