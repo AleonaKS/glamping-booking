@@ -54,7 +54,7 @@ export default function Design1({
   // Для ПК размеры в vw, для телефона — в vh или px (можно настроить)
   const squareSizeVw = isMobile ? 60 : 25; // например, на мобилке квадраты больше в процентах ширины
   const containerSizeVw = squareSizeVw * (Math.abs(Math.cos(rad)) + Math.abs(Math.sin(rad)));
-const fontSizePx = isMobile ? 26 : 28; // размер шрифта в пикселях
+const fontSizePx = isMobile ? 24 : 28; // размер шрифта в пикселях
 const svgHeightPx = isMobile ? 180 : 70; // высота svg в пикселях
 const TextHeight = isMobile ? 180 : 90; // высота svg в пикселях
 
@@ -111,7 +111,7 @@ const TextHeight = isMobile ? 180 : 90; // высота svg в пикселях
   style={{
     position: 'relative',
     width: '100%',
-    height: isMobile ? '140vw' : '70vw', // фиксированная высота контейнера
+    height: isMobile ? '140vw' : '60vw', // фиксированная высота контейнера
     overflow: 'hidden',
   }}
 >
