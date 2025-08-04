@@ -7,6 +7,12 @@ import Design1 from '@/components/design_1';
 import Design2 from '@/components/design_2';
 import Design3 from '@/components/design_3';
 
+import HeroSection from '@/components/HeroSection';
+import AdvantagesSection from '@/components/AdvantagesSection';
+import AtmosphereSection from '@/components/AtmosphereSection';
+// и другие секции
+
+
 interface Cottage {
   id: string;
   title: string;
@@ -16,7 +22,13 @@ interface Cottage {
   maxPeople?: number;
   coords: { x: number; y: number };
 }
-
+interface MapPoint {
+  id: string;
+  x: number;
+  y: number;
+  label: string;
+  image: string;
+}
 type DesignVariant = 'design1' | 'design2' | 'design3';
 
 const designStyles: Record<
@@ -35,6 +47,25 @@ export default function HomePage() {
   const [selectedHouse, setSelectedHouse] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [design, setDesign] = useState<DesignVariant>('design1');
+// Добавьте эти состояния:
+  const [mapPoints, setMapPoints] = useState<MapPoint[]>([
+    {
+      id: 'tennis',
+      x: 23,
+      y: 63,
+      label: 'Tennis Court',
+      image: '/images/GQ3A2360.jpeg'
+    },
+    {
+      id: 'pool',
+      x: 43,
+      y: 62,
+      label: 'Swimming Pool',
+      image: '/images/csm.jpg'
+    },
+    // Добавьте другие точки по необходимости
+  ]);
+  const [selectedPoint, setSelectedPoint] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/cottages')
@@ -207,32 +238,32 @@ export default function HomePage() {
         }}
       >
         {/* Карта с домиками */}
-        <section
-          id="map"
-          style={{
-            position: 'relative',
-            width: '100%',
-            height: 400,
-            marginBottom: 20,
-            border: '1px solid #ccc',
-            borderRadius: 8,
-            overflow: 'hidden',
-          }}
-        >
-          <svg
-            viewBox="0 0 100 100"
-            style={{ width: '100%', height: '100%', display: 'block' }}
-          >
-            <image
-              href="/image-asset.jpeg"
-              x="0"
-              y="0"
-              width="100"
-              height="100"
-              preserveAspectRatio="xMidYMid meet"
-            />
+<section
+  id="map"
+  style={{
+    position: 'relative',
+    width: '100%',
+    height: 400,
+    marginBottom: 20,
+    border: '1px solid #ccc',
+    borderRadius: 8,
+    overflow: 'hidden',
+  }}
+>
+  <svg
+    viewBox="0 0 100 100"
+    style={{ width: '100%', height: '100%', display: 'block' }}
+  >
+    <image
+      href="/image-asset.jpeg"
+      x="0"
+      y="0"
+      width="100"
+      height="100"
+      preserveAspectRatio="xMidYMid meet"
+    />
 
-            {houses.map(house => (
+    {houses.map(house => (
       <circle
         key={house.id}
         cx={house.coords.x}
@@ -245,10 +276,25 @@ export default function HomePage() {
         }
         style={{ cursor: 'pointer' }}
         onClick={() => setSelectedHouse(house.id)}
-        onTouchStart={() => setSelectedHouse(house.id)} // добавлено
+        onTouchStart={() => setSelectedHouse(house.id)}
       />
     ))}
-          </svg>
+
+    {/* Добавьте точки для подписей на карте */}
+    {mapPoints.map(point => (
+      <circle
+        key={point.id}
+        cx={point.x}
+        cy={point.y}
+        r={2} // Маленький радиус для точки
+        fill="rgb(107, 93, 255)" // Полупрозрачный красный
+        stroke="red"
+        strokeWidth={0.5}
+        style={{ cursor: 'pointer' }}
+        onClick={() => setSelectedPoint(point.id)}
+      />
+    ))}
+  </svg>
 
   {selectedHouse && (
     <HouseTooltip
@@ -257,7 +303,51 @@ export default function HomePage() {
       showDetailsLink
     />
   )}
+
+  {/* Всплывающее окно для точки */}
+  {selectedPoint && (() => {
+    const point = mapPoints.find(p => p.id === selectedPoint);
+    if (!point) return null;
+    
+    return (
+      <div
+        style={{
+          position: 'absolute',
+          top: `${point.y}%`,
+          left: `${point.x}%`,
+          transform: 'translate(10px, -50%)',
+          background: 'white',
+          border: '1px solid #ccc',
+          borderRadius: 8,
+          padding: 10,
+          width: 220,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+          zIndex: 10,
+        }}
+      >
+        <img
+          src={point.image}
+          alt={point.label}
+          style={{ width: '100%', borderRadius: 6, marginBottom: 8 }}
+        />
+        <h4 style={{ margin: '0 0 8px' }}>{point.label}</h4>
+        <button 
+          onClick={() => setSelectedPoint(null)}
+          style={{
+            background: '#eee',
+            border: 'none',
+            borderRadius: 4,
+            padding: '4px 8px',
+            cursor: 'pointer'
+          }}
+        >
+          Close
+        </button>
+      </div>
+    );
+  })()}
 </section>
+
 
         {/* Секции FAQ, Контакты и т.д. */}
         <section
@@ -274,6 +364,12 @@ export default function HomePage() {
           <h2>Часто задаваемые вопросы</h2>
           <FAQAccordion />
         </section>
+
+
+    <HeroSection />
+    <AdvantagesSection />
+    <AtmosphereSection />
+
 
         <section
           id="comfort"
